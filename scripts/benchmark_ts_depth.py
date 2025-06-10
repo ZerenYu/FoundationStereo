@@ -122,9 +122,11 @@ def run_inference(model, img0_torch, img1_torch, args):
     start_time = time.time()
     with torch.cuda.amp.autocast(True):
         if not args.hiera:
-            disp = model.forward(img0_padded, img1_padded, iters=args.valid_iters, test_mode=True, low_memory=True)
+            disp = model.forward(img0_padded, img1_padded,
+                                 iters=args.valid_iters, test_mode=True, low_memory=True)
         else:
-            disp = model.run_hierachical(img0_padded, img1_padded, iters=args.valid_iters, test_mode=True, small_ratio=0.5, low_memory=True)
+            disp = model.run_hierachical(
+                img0_padded, img1_padded, iters=args.valid_iters, test_mode=True, small_ratio=0.2, low_memory=False)
     inference_time = time.time() - start_time
 
     disp = padder.unpad(disp.float())
@@ -143,13 +145,15 @@ def main(args):
 
     for data in data_fn():
         logging.info(f"Processing item {data.item_id}")
-        img1, img2, intrinsics = deserialize_data(data, resource_manager)
+        img1, img2, intrinsics = deserialize_data(
+            data, resource_manager)
         print(intrinsics)
         disp, inference_time = run_inference(model, img1, img2, args)
-        
-    #     logging.info(f"Inference time: {inference_time:.4f}s, Disparity map shape: {disp.shape}")
-        
-    #     # We break here for now to only test one item.
+
+        # logging.info(
+        #     f"Inference time: {inference_time:.4f}s, Disparity map shape: {disp.shape}")
+
+        # We break here for now to only test one item.
         break
 
 
@@ -161,9 +165,12 @@ if __name__ == "__main__":
     parser.add_argument('--intrinsic_file', default=f'{code_dir}/../assets/K.txt', type=str, help='camera intrinsic matrix and baseline file')
     parser.add_argument('--ckpt_dir', default=f'{code_dir}/../pretrained_models/23-51-11/model_best_bp2.pth', type=str, help='pretrained model path')
     parser.add_argument('--out_dir', default=f'{code_dir}/../output/', type=str, help='the directory to save results')
-    parser.add_argument('--scale', default=1, type=float, help='downsize the image by scale, must be <=1')
-    parser.add_argument('--hiera', default=1, type=int, help='hierarchical inference (only needed for high-resolution images (>1K))')
-    parser.add_argument('--z_far', default=10, type=float, help='max depth to clip in point cloud')
+    parser.add_argument('--scale', default=1, type=float,
+                        help='downsize the image by scale, must be <=1')
+    parser.add_argument('--hiera', default=1, type=int,
+                        help='hierarchical inference (only needed for high-resolution images (>1K))')
+    parser.add_argument('--z_far', default=10, type=float,
+                        help='max depth to clip in point cloud')
     parser.add_argument('--valid_iters', type=int, default=32, help='number of flow-field updates during forward pass')
     parser.add_argument('--get_pc', type=int, default=1, help='save point cloud output')
     parser.add_argument('--remove_invisible', default=1, type=int, help='remove non-overlapping observations between left and right images from point cloud, so the remaining points are more reliable')
