@@ -78,11 +78,10 @@ def run_inference(model, img0_path, img1_path, args):
     H, W = img0.shape[:2]
     img0_ori = img0.copy()
     logging.info(f"img0: {img0.shape}")
-
     img0_torch = torch.as_tensor(img0).cuda().float()[None].permute(0, 3, 1, 2)
     img1_torch = torch.as_tensor(img1).cuda().float()[None].permute(0, 3, 1, 2)
     padder = InputPadder(img0_torch.shape, divis_by=32, force_square=False)
-    img0_padded, img1_padded = padder.pad(img0_torch, img1_torch)
+    img0_padded, img1_padded = padder.pad(img0_torch, img1_torch)   
 
     start_time = time.time()
     with torch.cuda.amp.autocast(True):

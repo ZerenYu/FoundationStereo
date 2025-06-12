@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import torch
 from io import BytesIO
+import pandas as pd
 from zstandard import ZstdCompressor, ZstdDecompressor
 
 
@@ -87,11 +88,11 @@ def deserialize_and_download_tensor(s3_uri: str, resource_manager: AbstractResou
 
 
 def test_deserialize_and_download_image():
-    test_image_file = "s3://covariant-annotation-pipeline/resource_root/sim_scene_annotations/images-camera_array_01/409a/409ad6ba22b2cb129609ecbd52e5446e5f90d9920563103763e558eb576ffcf5.png"
+    test_image_file = "s3://covariant-annotation-pipeline/resource_root/sim_scene_annotations/images-camera_array_02/0130/0130da66ac0e01f11d07d66c8bf562a4e23d38c88993ade43aff0e029e61f578.png"
     resource_manager = Boto3ResourceManager()
     tensor = deserialize_and_download_image(test_image_file, bit_depth=8, resource_manager=resource_manager, dtype=torch.float32)
     tensor = (tensor * 255).to(torch.uint8)
-    cv2.imwrite("test_image.png", tensor.permute(1, 2, 0).cpu().numpy())
+    cv2.imwrite("20250611171250_right.png", tensor.permute(1, 2, 0).cpu().numpy())
 
 def test_deserialize_and_download_tensor():
     test_tensor_file = "s3://covariant-annotation-pipeline/resource_root/sim_scene_annotations/depth_maps-camera_array_01/fc64/fc64581dc26ef911ed77bb674b8736749351c832a5ded9d407d812da733304e9.blob"
@@ -107,7 +108,13 @@ def test_deserialize_and_download_tensor():
     cv2.imwrite("test_depth.png", depth_image)
     print(f"Saved depth image with range [{depth_min:.2f}, {depth_max:.2f}]")
 
+def test_read_parquet():
+    df = pd.read_parquet("metadata/depth_live_1724981057")
+    print(list(df.iloc[0]))
 
 if __name__ == "__main__":
-    test_deserialize_and_download_tensor()
+    # test_deserialize_and_download_tensor()
+    # test_read_parquet()
+    test_deserialize_and_download_image()
+
     
