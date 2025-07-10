@@ -7,14 +7,15 @@ services:
     image: foundation_stereo_img  # You can customize this image name
     runtime: nvidia  # This enables NVIDIA GPU access
     volumes:
-      - .:/workspace  # Mounts the current directory to /workspace in the container
+      - ../../:/depth/
       
-    working_dir: /workspace  # Sets the working directory in the container
+    working_dir: /depth  # Sets the working directory in the container
     stdin_open: true  # Keeps STDIN open even if not attached
     tty: true        # Allocates a pseudo-TTY
     # Optional: If you need to expose ports
-    # ports:
-    #   - "8888:8888" # Example for Jupyter Lab
+    ports:
+      - "7860:7860"
+      - "50062:50062"
     deploy:
       resources:
         reservations:
